@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import {Component} from '@angular/core';
+import {AlertController, IonicPage, Loading, LoadingController, NavController, NavParams} from 'ionic-angular';
 import {HomePage} from "../home/home";
+import {DataProvider} from "../../providers/data/data";
+import {CreateAccountPage} from "../create-account/create-account";
 
 /**
  * Generated class for the LoginPage page.
@@ -11,19 +13,59 @@ import {HomePage} from "../home/home";
 
 @IonicPage()
 @Component({
-  selector: 'page-login',
-  templateUrl: 'login.html',
+    selector: 'page-login',
+    templateUrl: 'login.html',
 })
 export class LoginPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+    public loading: Loading;
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad LoginPage');
-  }
+    constructor(public navCtrl: NavController, public navParams: NavParams,
+                public alertCtrl: AlertController, public loadingCtrl: LoadingController,
+                public data: DataProvider) {
+    }
 
-  loginClick():void {
-    this.navCtrl.setRoot(HomePage);
-  }
+    ionViewDidLoad() {
+        console.log('ionViewDidLoad LoginPage');
+    }
+
+    loginClick(): void {
+        let prompt = this.alertCtrl.create({
+            title: 'Login to CardApp',
+            message: "Login to view your account",
+            inputs: [
+                {
+                    name: 'email',
+                    placeholder: "email address"
+                },
+                {
+                    name: 'password',
+                    placeholder: "password",
+                    type: "password"
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Cancel',
+                    handler: data => {
+                        console.log('Cancel clicked');
+                    }
+                },
+                {
+                    text: 'Login',
+                    handler: data => {
+                        this.data.signInWithEP(data).then((result) => {
+                            this.navCtrl.setRoot(HomePage);
+                        });
+                    }
+                }
+            ]
+        });
+        this.loading = this.loadingCtrl.create();
+        prompt.present();
+    }
+
+    createAccount(): void {
+        this.navCtrl.push(CreateAccountPage);
+    }
 }

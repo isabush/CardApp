@@ -1,6 +1,8 @@
 import {Component} from '@angular/core';
 import {AlertController, NavController} from 'ionic-angular';
 import {DataProvider} from "../../providers/data/data";
+import {LoginPage} from "../login/login";
+import {AddCardPage} from "../add-card/add-card";
 
 @Component({
     selector: 'page-home',
@@ -9,17 +11,18 @@ import {DataProvider} from "../../providers/data/data";
 export class HomePage {
 
     setOfCards: any;
+    radioOpen: boolean;
+    radioResult;
 
-    constructor(public navCtrl: NavController, public data: DataProvider, public alertCtrl: AlertController) {
+    constructor(public navCtrl: NavController, public data: DataProvider,
+                public alertCtrl: AlertController) {
 
     }
 
     ionViewDidLoad() {
-        this.data.getCards().then((result) => {
-            console.log('result ', result);
-            console.log('result ' + result);
-            this.setOfCards = result;
-        })
+
+        this.setOfCards = this.data.getCards();
+        console.log(this.setOfCards);
     }
 
     editCard(card): void {
@@ -29,11 +32,15 @@ export class HomePage {
             inputs: [
                 {
                     name: 'title',
-                    value: card.title
+                    value: card.val().title
                 },
                 {
                     name: 'content',
-                    value: card.content
+                    value: card.val().content
+                },
+                {
+                    name: 'image',
+                    value: card.val().image
                 }
             ],
             buttons: [
@@ -48,9 +55,15 @@ export class HomePage {
                     handler: data => {
                         let index = this.data.cards.indexOf(card);
                         if (index > -1) {
-                            this.data.cards[index].title = data.title;
-                            this.data.cards[index].content = data.content;
+
+                            let obj = {
+                                "title": data.title,
+                                "content": data.content
+                            };
+
+                            this.data.updateCardInDB(card.key, obj, index);
                         }
+
                     }
                 }
             ]
@@ -72,6 +85,7 @@ export class HomePage {
                 {
                     text: 'Delete',
                     handler: () => {
+                        this.data.removeCardFromDB(card);
                         let index = this.data.cards.indexOf(card);
                         if (index > -1) {
                             this.data.cards.splice(index, 1);
@@ -85,40 +99,13 @@ export class HomePage {
 
 
     addCard(): void {
-        let prompt = this.alertCtrl.create({
-            title: 'Create a new card',
-            message: "Enter a title and description for your new card",
-            inputs: [
-                {
-                    name: 'title',
-                    placeholder: 'Title'
-                },
-                {
-                    name: 'content',
-                    placeholder: 'Description'
-                }
-            ],
-            buttons: [
-                {
-                    text: 'Cancel',
-                    handler: data => {
-                        console.log('Cancel clicked');
-                    }
-                },
-                {
-                    text: 'Create Card',
-                    handler: data => {
-
-                        //this.data.cards.push(data);
-
-                        this.data.addCardToDB(data);
-
-                    }
-                }
-            ]
-        });
-        prompt.present();
+        this.navCtrl.push(AddCardPage);
     }
 
+    logout(): void {
+        this.data.logoutUser().then((result) => {
+            this.navCtrl.setRoot(LoginPage);
+        });
+    }
 
 }

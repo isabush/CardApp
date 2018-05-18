@@ -1,21 +1,30 @@
 <ion-header>
-    <ion-navbar>
+    <ion-navbar color="primary">
         <ion-title>
             My Card View
         </ion-title>
+        <ion-buttons end>
+            <button ion-button icon-only (click)="logout()">
+                <ion-icon name="log-out"></ion-icon>
+            </button>
+        </ion-buttons>
     </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding class="main">
+
     <ion-card *ngFor="let card of setOfCards">
-        <ion-card-header>
-            {{ card.title }}
-        </ion-card-header>
+        <img src="../../assets/imgs/{{ card.val().image}}"/>
+
+        <div class="card-title">
+            {{ card.val().title }}
+        </div>
 
 
-        <ion-card-content>
-            {{ card. content }}
-        </ion-card-content>
+        <div class="card-content">
+            {{ card.val().content }}
+        </div>
+
 
         <ion-row>
             <ion-col left text-center="">
@@ -32,8 +41,9 @@
     </ion-card>
 
     <ion-fab bottom right (click)="addCard()">
-        <button ion-fab color="danger">
+        <button ion-fab mini color="dark">
             <ion-icon name="md-add"></ion-icon>
         </button>
     </ion-fab>
+
 </ion-content>
